@@ -2,6 +2,12 @@
 
 **Give your coding agent a team, not another prompt.**
 
+[![CI](https://github.com/VietHann/agent-workspace/actions/workflows/ci.yml/badge.svg)](https://github.com/VietHann/agent-workspace/actions/workflows/ci.yml)
+[![MIT License](https://img.shields.io/badge/license-MIT-0f766e.svg)](LICENSE)
+[![Node.js 20+](https://img.shields.io/badge/node-%3E%3D20-339933.svg?logo=node.js&logoColor=white)](package.json)
+[![TypeScript](https://img.shields.io/badge/built%20with-TypeScript-3178c6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-2563eb.svg)](CONTRIBUTING.md)
+
 Turn Codex, Claude Code, Cursor, GitHub Copilot, Gemini CLI, or OpenCode into a repository-aware AI engineering team.
 
 ```bash
@@ -211,6 +217,18 @@ pnpm build
 ```
 
 The contribution bar is usefulness and reproducibility: concrete context, an ordered workflow, explicit constraints, meaningful validation, and honest failure conditions.
+
+Not ready to open a PR? Start a [discussion](https://github.com/VietHann/agent-workspace/discussions), report a [bug](https://github.com/VietHann/agent-workspace/issues/new?template=bug.yml), or propose an [extension](https://github.com/VietHann/agent-workspace/issues/new?template=extension.yml).
+
+## Project stewardship
+
+`agent-workspace` is community-driven and currently maintained by [@VietHann](https://github.com/VietHann). The project uses an open roadmap and lightweight maintainer model designed to expand as contributors take sustained ownership.
+
+- [Governance](GOVERNANCE.md)
+- [Support](SUPPORT.md)
+- [Security policy](SECURITY.md)
+- [Changelog](CHANGELOG.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
 
 ## Roadmap
 
