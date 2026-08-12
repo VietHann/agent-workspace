@@ -1,0 +1,26 @@
+name: Extension proposal
+description: Propose a skill, agent, detector, pack, or adapter
+title: "extension: "
+labels: [extension, community]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Extension type
+      options: [skill, agent, detector, adapter, framework pack, rule]
+    validations:
+      required: true
+  - type: textarea
+    id: capability
+    attributes:
+      label: Reproducible capability
+      description: What concrete outcome should this extension produce?
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation
+      description: How can a contributor or agent verify success and detect failure?
+    validations:
+      required: true

@@ -1,0 +1,31 @@
+name: Bug report
+description: Report reproducible incorrect behavior
+title: "bug: "
+labels: [bug]
+body:
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Observed behavior
+      description: Include the exact command and output.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: agent-workspace version
+    validations:
+      required: true
+  - type: textarea
+    id: repository
+    attributes:
+      label: Repository signals
+      description: Relevant package files, stack, operating system, and Node.js version. Remove secrets.
+    validations:
+      required: true
