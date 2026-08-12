@@ -1,0 +1,49 @@
+kind: skill
+schemaVersion: "1"
+name: performance-review
+version: 1.0.0
+description: Find material performance bottlenecks through measurement, explain their cause, and
+  verify targeted improvements.
+tags:
+  - performance
+  - review
+requiredContext:
+  - performance objective
+  - representative workload
+  - project context
+  - relevant runtime metrics
+workflow:
+  - id: define-budget
+    action: Define the user-visible metric, target, workload, environment, and acceptable tradeoffs.
+    produces: performance contract
+  - id: measure-baseline
+    action: Capture a repeatable baseline with suitable profiling or timing tools and record variance.
+    produces: baseline measurements
+  - id: locate-bottleneck
+    action: Attribute material cost to code paths, queries, allocations, network operations, or
+      rendering work.
+    produces: evidence-ranked bottlenecks
+  - id: improve
+    action: Apply the smallest change that removes the dominant avoidable cost without weakening
+      correctness.
+    produces: focused optimization
+  - id: compare
+    action: Repeat the same measurement and run correctness checks to quantify improvement and regressions.
+    produces: before-and-after results
+constraints:
+  - Do not optimize from intuition alone.
+  - Keep benchmark inputs and environment comparable.
+  - Do not trade correctness for an unapproved metric gain.
+outputs:
+  - baseline
+  - bottleneck evidence
+  - change summary
+  - comparative measurements
+validation:
+  - Measurements are reproducible enough to support the conclusion.
+  - The target metric materially improves or the review recommends no change.
+  - Correctness checks still pass.
+failureConditions:
+  - No representative workload can be created.
+  - Measurement noise exceeds the expected effect.
+  - Required profiling access is unavailable.

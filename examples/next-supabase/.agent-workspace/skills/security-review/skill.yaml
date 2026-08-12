@@ -1,0 +1,52 @@
+kind: skill
+schemaVersion: "1"
+name: security-review
+version: 1.0.0
+description: Review concrete trust boundaries and attack paths across identity, input, data,
+  secrets, and dependencies.
+tags:
+  - security
+  - review
+requiredContext:
+  - project context
+  - changed code or review scope
+  - trust boundaries
+  - deployment assumptions
+workflow:
+  - id: map-trust
+    action: Identify actors, assets, entry points, privilege boundaries, sensitive data, and external
+      dependencies.
+    produces: threat surface map
+  - id: trace-input
+    action: Follow untrusted input through parsing, validation, authorization, storage, execution, and
+      output encoding.
+    produces: input-flow findings
+  - id: verify-identity
+    action: Check authentication, authorization, tenancy isolation, session behavior, and insecure
+      default paths.
+    produces: access-control findings
+  - id: inspect-operations
+    action: Check secrets, logging, error disclosure, dependency risk, cryptography use, and deployment
+      configuration.
+    produces: operational findings
+  - id: prioritize
+    action: Rank findings by exploitability and impact and attach a practical mitigation and
+      verification step.
+    produces: security review
+constraints:
+  - Do not report generic checklist items without an attack path.
+  - Do not expose secret values in output.
+  - Distinguish verified vulnerabilities from environment-dependent risks.
+outputs:
+  - threat surface
+  - severity-ranked findings
+  - mitigations
+  - verification steps
+validation:
+  - Every finding names an asset and attack path.
+  - Severity reflects both likelihood and impact.
+  - Proposed mitigations address the root weakness.
+failureConditions:
+  - Trust boundaries cannot be established.
+  - Required configuration is inaccessible.
+  - Safe validation would affect production data or services.

@@ -1,0 +1,52 @@
+kind: skill
+schemaVersion: "1"
+name: design-api
+version: 1.0.0
+description: Design a consistent, evolvable API contract with explicit errors, authorization,
+  compatibility, and examples.
+tags:
+  - api
+  - architecture
+requiredContext:
+  - consumer use cases
+  - project API conventions
+  - data model
+  - authorization requirements
+workflow:
+  - id: model-use-cases
+    action: Express consumer goals, actors, resources, invariants, and out-of-scope behavior without
+      choosing transport details early.
+    produces: use-case model
+  - id: inspect-conventions
+    action: Identify existing naming, versioning, pagination, error, authentication, and serialization
+      patterns.
+    produces: compatibility constraints
+  - id: define-contract
+    action: Specify requests, responses, state transitions, validation, authorization, idempotency, and
+      error semantics.
+    produces: API contract
+  - id: test-evolution
+    action: Evaluate backward compatibility, retries, concurrency, partial failure, and future extension
+      pressure.
+    produces: edge-case decisions
+  - id: illustrate
+    action: Provide realistic success and failure examples plus contract-level test scenarios.
+    produces: examples and acceptance tests
+constraints:
+  - Do not expose storage structure without a consumer need.
+  - Do not use success responses for domain failures.
+  - Preserve established API conventions unless deviation is justified.
+outputs:
+  - contract specification
+  - examples
+  - compatibility notes
+  - test scenarios
+validation:
+  - Every use case maps to a contract operation.
+  - Error behavior is explicit.
+  - Authorization is defined per operation.
+  - Compatibility effects are documented.
+failureConditions:
+  - Consumers or use cases are unknown.
+  - Authorization ownership is unresolved.
+  - The data invariant cannot be expressed consistently.

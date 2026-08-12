@@ -1,0 +1,49 @@
+kind: skill
+schemaVersion: "1"
+name: review-pr
+version: 1.0.0
+description: Perform a production-grade change review focused on correctness, regressions, security,
+  and useful feedback.
+tags:
+  - review
+  - quality
+requiredContext:
+  - change intent
+  - complete diff
+  - project context
+  - relevant tests and contracts
+workflow:
+  - id: understand-intent
+    action: Reconstruct intended behavior and explicit constraints from the change description and
+      repository evidence.
+    produces: review contract
+  - id: inspect-diff
+    action: Read every changed file and trace affected callers, consumers, schemas, and configuration.
+    produces: impact notes
+  - id: challenge-behavior
+    action: Test correctness across normal, boundary, failure, concurrency, and compatibility paths as
+      applicable.
+    produces: candidate findings
+  - id: inspect-validation
+    action: Evaluate whether tests prove the changed contract and identify material missing coverage.
+    produces: test assessment
+  - id: report
+    action: Emit only actionable findings with severity, location, failure scenario, and suggested
+      direction.
+    produces: structured review
+constraints:
+  - Do not report style preferences as defects.
+  - Do not claim an issue without a concrete failure scenario.
+  - Keep separate findings separate.
+outputs:
+  - severity-ranked actionable findings
+  - validation gaps
+  - residual risk summary
+validation:
+  - Each finding identifies an affected location.
+  - Each finding explains user or system impact.
+  - No finding depends on an unstated preference.
+failureConditions:
+  - The diff is incomplete.
+  - The change intent cannot be established.
+  - Required generated or dependency context is missing.

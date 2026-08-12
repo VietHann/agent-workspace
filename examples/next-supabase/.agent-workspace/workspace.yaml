@@ -1,0 +1,45 @@
+kind: workspace
+schemaVersion: "1"
+generator:
+  name: agent-workspace
+  version: 0.1.0
+project:
+  name: example-next-supabase
+  root: .
+agents:
+  - name: architect
+    version: 1.0.0
+  - name: debugger
+    version: 1.0.0
+  - name: implementation-engineer
+    version: 1.0.0
+  - name: reviewer
+    version: 1.0.0
+  - name: security-reviewer
+    version: 1.0.0
+  - name: test-engineer
+    version: 1.0.0
+skills:
+  - name: build-feature
+    version: 1.0.0
+  - name: database-migration
+    version: 1.0.0
+  - name: debug
+    version: 1.0.0
+  - name: design-api
+    version: 1.0.0
+  - name: performance-review
+    version: 1.0.0
+  - name: refactor
+    version: 1.0.0
+  - name: review-pr
+    version: 1.0.0
+  - name: security-review
+    version: 1.0.0
+  - name: ship
+    version: 1.0.0
+  - name: write-tests
+    version: 1.0.0
+adapters:
+  - codex
+  - cursor

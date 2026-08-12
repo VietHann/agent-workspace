@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "1",
+  "root": ".",
+  "name": "example-next-supabase",
+  "analyzedAt": "2026-08-12T02:07:53.831Z",
+  "facts": [
+    {
+      "category": "database",
+      "value": "Supabase",
+      "source": "package.json:@supabase/supabase-js",
+      "confidence": "detected"
+    },
+    {
+      "category": "framework",
+      "value": "Next.js",
+      "source": "package.json:next",
+      "confidence": "detected"
+    },
+    {
+      "category": "framework",
+      "value": "React",
+      "source": "package.json:react",
+      "confidence": "detected"
+    },
+    {
+      "category": "language",
+      "value": "TypeScript",
+      "source": "tsconfig.json or package.json",
+      "confidence": "detected"
+    },
+    {
+      "category": "package-manager",
+      "value": "pnpm",
+      "source": "pnpm-lock.yaml",
+      "confidence": "detected"
+    },
+    {
+      "category": "testing",
+      "value": "Vitest",
+      "source": "package.json:vitest",
+      "confidence": "detected"
+    }
+  ],
+  "sourceDirectories": [
+    "src"
+  ],
+  "testDirectories": [
+    "tests"
+  ],
+  "packageBoundaries": [],
+  "commands": [
+    {
+      "name": "build",
+      "command": "next build",
+      "source": "package.json"
+    },
+    {
+      "name": "test",
+      "command": "vitest run",
+      "source": "package.json"
+    },
+    {
+      "name": "typecheck",
+      "command": "tsc --noEmit",
+      "source": "package.json"
+    }
+  ],
+  "conventions": [
+    {
+      "statement": "TypeScript strict mode is enabled.",
+      "source": "tsconfig.json",
+      "confidence": "detected"
+    }
+  ],
+  "recommendations": [
+    "Review inferred context before relying on it for architecture decisions."
+  ]
+}

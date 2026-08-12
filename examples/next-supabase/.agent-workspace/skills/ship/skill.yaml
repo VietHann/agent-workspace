@@ -1,0 +1,52 @@
+kind: skill
+schemaVersion: "1"
+name: ship
+version: 1.0.0
+description: Prepare a change for release with explicit quality gates, operational risk, deployment
+  steps, and rollback criteria.
+tags:
+  - release
+  - delivery
+requiredContext:
+  - release scope
+  - project commands
+  - change diff
+  - deployment process
+  - operational owners
+workflow:
+  - id: inventory-change
+    action: Summarize user-visible behavior, migrations, configuration, dependencies, flags, and
+      compatibility impact.
+    produces: release scope
+  - id: run-gates
+    action: Execute required build, type, lint, test, security, and packaging checks defined by the
+      repository.
+    produces: quality-gate results
+  - id: assess-risk
+    action: Identify failure modes, blast radius, observability gaps, rollout controls, and support
+      considerations.
+    produces: release risk assessment
+  - id: prepare-rollout
+    action: Define ordered deployment, verification signals, owners, stop conditions, and rollback actions.
+    produces: deploy runbook
+  - id: communicate
+    action: Produce a concise release note that states behavior, operator actions, known limits, and
+      evidence.
+    produces: release summary
+constraints:
+  - Do not mark a release ready with unexplained failing gates.
+  - Do not hide manual steps or irreversible operations.
+  - Tie rollback triggers to observable signals.
+outputs:
+  - quality-gate report
+  - risk assessment
+  - deploy and rollback checklist
+  - release notes
+validation:
+  - Required repository checks pass.
+  - Migration and configuration ordering is explicit.
+  - Owners can verify success and execute rollback from the runbook.
+failureConditions:
+  - A required quality gate fails.
+  - Rollback is undefined for a material risk.
+  - Deployment credentials or operational approval are missing.
