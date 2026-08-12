@@ -44,7 +44,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/agent-workspace/agent-workspace.git"
+    "url": "https://github.com/VietHann/agent-workspace.git"
+  },
+  "homepage": "https://github.com/VietHann/agent-workspace#readme",
+  "bugs": {
+    "url": "https://github.com/VietHann/agent-workspace/issues"
   },
   "dependencies": {
     "commander": "^14.0.0",
