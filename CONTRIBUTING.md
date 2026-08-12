@@ -2,6 +2,8 @@
 
 Thank you for helping build a portable engineering system for coding agents. Contributions are welcome for skills, agents, detectors, adapters, examples, documentation, and validation.
 
+For early design feedback, start a [GitHub Discussion](https://github.com/VietHann/agent-workspace/discussions). Use issues for actionable bugs and accepted feature work.
+
 ## Set up
 
 ```bash
@@ -31,3 +33,5 @@ Copy `templates/agent/agent.yaml` into `agents/<kebab-case-name>.yaml`. A new ro
 Keep each PR focused on one coherent improvement. Explain the user problem, the chosen contract, validation performed, and any compatibility impact. Schema changes must include migration notes and tests because catalogs may be maintained in forks.
 
 By participating, you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+Project decisions and maintainer responsibilities are documented in [GOVERNANCE.md](GOVERNANCE.md). Support and vulnerability reports follow [SUPPORT.md](SUPPORT.md) and [SECURITY.md](SECURITY.md).
