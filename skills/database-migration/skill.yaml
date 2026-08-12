@@ -1,0 +1,27 @@
+kind: skill
+schemaVersion: "1"
+name: database-migration
+version: 1.0.0
+description: Design and validate a safe, observable, and reversible database schema or data migration.
+tags: [database, migration]
+requiredContext: [current schema, target invariant, data volume and shape, deployment model, database engine]
+workflow:
+  - id: assess-state
+    action: Inspect current schema, constraints, callers, representative data, scale, and engine-specific behavior.
+    produces: migration baseline
+  - id: design-phases
+    action: Separate additive schema, backfill, dual-read or dual-write, constraint enforcement, and cleanup phases as needed.
+    produces: phased rollout plan
+  - id: plan-safety
+    action: Define locking risk, transaction boundaries, batching, retries, idempotency, monitoring, and rollback triggers.
+    produces: safety plan
+  - id: implement
+    action: Create migration and application changes using repository conventions with explicit forward and rollback behavior.
+    produces: migration artifacts
+  - id: rehearse
+    action: Test on representative data, verify invariants, measure operational impact, and rehearse rollback.
+    produces: rehearsal evidence
+constraints: [Do not make destructive cleanup part of the initial deploy., Do not assume transactional DDL across engines., Do not enforce a constraint before existing data satisfies it.]
+outputs: [phased plan, migration files, rollout and rollback runbook, validation queries]
+validation: [Forward migration is repeatable or safely idempotent., Old and new application versions coexist for the planned window., Data invariants and rollback are tested.]
+failureConditions: [Data scale or engine behavior is unknown for a high-risk operation., A required rollback path is impossible and unapproved., Representative rehearsal reveals unacceptable locking or data loss risk.]
