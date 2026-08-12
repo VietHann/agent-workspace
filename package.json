@@ -51,7 +51,7 @@
     "url": "https://github.com/VietHann/agent-workspace/issues"
   },
   "dependencies": {
-    "commander": "^14.0.0",
+    "commander": "^15.0.0",
     "picocolors": "^1.1.1",
     "yaml": "^2.8.1",
     "zod": "^4.0.17"
