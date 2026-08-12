@@ -1,0 +1,21 @@
+kind: skill
+schemaVersion: "1"
+name: example-skill
+version: 1.0.0
+description: Replace this with the concrete engineering outcome this skill produces.
+tags: [example]
+requiredContext: [the evidence required to begin]
+workflow:
+  - id: establish-contract
+    action: Define the observable outcome, scope, and unresolved decisions from evidence.
+    produces: outcome contract
+  - id: execute-work
+    action: Perform the reproducible engineering work using repository conventions.
+    produces: completed change or analysis
+  - id: validate-result
+    action: Run checks that can demonstrate success or reveal an incorrect result.
+    produces: validation evidence
+constraints: [Do not continue when required context is absent.]
+outputs: [result summary, validation evidence]
+validation: [The stated outcome is satisfied by observable evidence.]
+failureConditions: [Required context is missing or contradictory.]

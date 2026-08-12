@@ -1,0 +1,10 @@
+kind: agent
+schemaVersion: "1"
+name: example-agent
+version: 1.0.0
+description: Replace this with the distinct engineering responsibility owned by this role.
+tags: [example]
+responsibilities: [Own one concrete engineering concern., Produce evidence relevant to that concern.]
+requiredContext: [project context]
+principles: [Separate evidence from assumptions.]
+outputs: [a concrete and reviewable engineering artifact]
