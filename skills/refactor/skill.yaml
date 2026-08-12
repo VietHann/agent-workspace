@@ -1,0 +1,27 @@
+kind: skill
+schemaVersion: "1"
+name: refactor
+version: 1.0.0
+description: Improve code structure while preserving observable behavior and proving that preservation with tests.
+tags: [refactoring, maintainability]
+requiredContext: [refactor objective, existing behavior, project context, relevant tests and consumers]
+workflow:
+  - id: define-invariants
+    action: Record behavior, contracts, performance characteristics, and compatibility constraints that must remain unchanged.
+    produces: preservation contract
+  - id: establish-baseline
+    action: Run focused tests and add characterization coverage where important behavior is not protected.
+    produces: passing baseline
+  - id: choose-boundary
+    action: Identify the smallest structural change that addresses the stated maintainability problem.
+    produces: refactor plan
+  - id: transform
+    action: Apply the transformation in reviewable steps without mixing feature changes.
+    produces: structural diff
+  - id: compare
+    action: Run checks and inspect the final diff for accidental behavior or public API changes.
+    produces: equivalence evidence
+constraints: [Do not combine new product behavior with the refactor., Do not replace clear local code with speculative abstractions., Preserve public interfaces unless explicitly authorized.]
+outputs: [before-and-after structure, invariant checklist, validation results]
+validation: [Baseline and final checks pass., Stated invariants remain true., The resulting structure directly addresses the named problem.]
+failureConditions: [Behavior is insufficiently understood to preserve., Baseline tests fail for relevant reasons., The change requires an unapproved compatibility break.]

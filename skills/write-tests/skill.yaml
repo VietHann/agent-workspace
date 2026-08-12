@@ -1,0 +1,27 @@
+kind: skill
+schemaVersion: "1"
+name: write-tests
+version: 1.0.0
+description: Add behavior-focused automated coverage for expected outcomes, boundaries, failures, and regressions.
+tags: [testing, quality]
+requiredContext: [behavior contract, implementation, project test conventions, test commands]
+workflow:
+  - id: inventory-behavior
+    action: List public behaviors, invariants, boundaries, and meaningful failure paths that require evidence.
+    produces: coverage map
+  - id: inspect-patterns
+    action: Read nearby tests and fixtures to identify the repository's supported testing style and utilities.
+    produces: test approach
+  - id: implement-cases
+    action: Add deterministic tests that assert observable outputs and avoid unnecessary internal coupling.
+    produces: test diff
+  - id: run-focused
+    action: Run the narrowest relevant test command and resolve failures caused by the new tests.
+    produces: focused result
+  - id: run-suite
+    action: Run the relevant broader suite and record any unrelated pre-existing failures separately.
+    produces: suite result
+constraints: [Do not mock the behavior under test., Do not rely on wall-clock timing when deterministic control is possible., Do not weaken existing assertions.]
+outputs: [coverage rationale, added test cases, commands and results, known gaps]
+validation: [Tests fail for the intended regression when feasible., Tests pass with the correct implementation., Assertions describe externally meaningful behavior.]
+failureConditions: [Expected behavior is undefined., The test environment cannot execute., Required boundaries cannot be controlled deterministically.]
