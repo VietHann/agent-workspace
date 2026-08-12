@@ -1,0 +1,34 @@
+name: Feature request
+description: Propose a focused product improvement
+title: "feat: "
+labels: [enhancement, needs-triage]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What recurring developer problem should agent-workspace solve?
+      placeholder: Describe the workflow today and who experiences the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: Describe observable behavior, not only an implementation idea.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What workarounds or simpler approaches have you tried?
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This organizes or upgrades existing coding agents rather than replacing them.
+          required: true
+        - label: I searched existing issues and discussions for this request.
+          required: true
