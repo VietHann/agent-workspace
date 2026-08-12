@@ -11,7 +11,7 @@
 Turn Codex, Claude Code, Cursor, GitHub Copilot, Gemini CLI, or OpenCode into a repository-aware AI engineering team.
 
 ```bash
-npx github:VietHann/agent-workspace init
+npx --yes --package=git+https://github.com/VietHann/agent-workspace.git agent-workspace init
 ```
 
 ```text
@@ -103,21 +103,21 @@ Node.js 20 or newer is required.
 
 ```bash
 cd your-project
-npx github:VietHann/agent-workspace init
-npx github:VietHann/agent-workspace doctor
+npx --yes --package=git+https://github.com/VietHann/agent-workspace.git agent-workspace init
+npx --yes --package=git+https://github.com/VietHann/agent-workspace.git agent-workspace doctor
 ```
 
 Choose specific integrations when you do not want all adapters:
 
 ```bash
-npx github:VietHann/agent-workspace init --tools codex,claude,cursor
+npx --yes --package=git+https://github.com/VietHann/agent-workspace.git agent-workspace init --tools codex,claude,cursor
 ```
 
 Inspect without writing:
 
 ```bash
-npx github:VietHann/agent-workspace analyze
-npx github:VietHann/agent-workspace analyze --json
+npx --yes --package=git+https://github.com/VietHann/agent-workspace.git agent-workspace analyze
+npx --yes --package=git+https://github.com/VietHann/agent-workspace.git agent-workspace analyze --json
 ```
 
 ## Your default engineering team
@@ -163,7 +163,7 @@ failureConditions:
 Install a bundled skill into an initialized workspace:
 
 ```bash
-npx github:VietHann/agent-workspace add security-review
+npx --yes --package=git+https://github.com/VietHann/agent-workspace.git agent-workspace add security-review
 ```
 
 ## CLI
