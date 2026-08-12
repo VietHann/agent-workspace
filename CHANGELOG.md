@@ -10,6 +10,16 @@ All notable changes to `agent-workspace` are documented here. The project follow
 - Improved monorepo and package-boundary analysis.
 - Managed-file update previews and compatibility fixtures.
 
+## [0.1.1] - 2026-08-12
+
+### Changed
+
+- Moved the npm package name to `@viethann/agent-workspace` because the unscoped `agent-workspace` name belongs to an unrelated package.
+
+### Security
+
+- Overrode the vulnerable transitive `esbuild` range with version 0.28.1 or newer.
+
 ## [0.1.0] - 2026-08-12
 
 ### Added
@@ -21,5 +31,6 @@ All notable changes to `agent-workspace` are documented here. The project follow
 - `init`, `analyze`, `add`, `list`, `doctor`, and `validate` commands.
 - Cross-platform tests, a generated example workspace, contribution templates, and community health documentation.
 
-[Unreleased]: https://github.com/VietHann/agent-workspace/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/VietHann/agent-workspace/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/VietHann/agent-workspace/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/VietHann/agent-workspace/releases/tag/v0.1.0

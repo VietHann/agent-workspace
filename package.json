@@ -1,6 +1,6 @@
 {
-  "name": "agent-workspace",
-  "version": "0.1.0",
+  "name": "@viethann/agent-workspace",
+  "version": "0.1.1",
   "description": "Give your coding agent a team, not another prompt.",
   "type": "module",
   "bin": {
@@ -30,6 +30,7 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "validate": "node scripts/validate.mjs",
+    "prepare": "tsup",
     "prepublishOnly": "node scripts/validate.mjs --build"
   },
   "keywords": [
@@ -42,6 +43,9 @@
     "developer-tools"
   ],
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/VietHann/agent-workspace.git"

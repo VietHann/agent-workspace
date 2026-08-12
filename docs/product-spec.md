@@ -86,7 +86,7 @@ Unknown fields are rejected during contribution validation. Generated manifests 
 
 ### `agent-workspace init [path]`
 
-Analyzes a repository, shows the detected stack, creates the canonical workspace, and generates adapter entry points. It is non-interactive by default so `npx agent-workspace init` works in terminals and CI. Options include `--tools`, `--force`, `--dry-run`, and `--json`. Existing unmanaged files are skipped unless `--force` is supplied.
+Analyzes a repository, shows the detected stack, creates the canonical workspace, and generates adapter entry points. It is non-interactive by default so `npx github:VietHann/agent-workspace init` works in terminals and CI before the scoped npm package is published. Options include `--tools`, `--force`, `--dry-run`, and `--json`. Existing unmanaged files are skipped unless `--force` is supplied.
 
 ### `agent-workspace analyze [path]`
 

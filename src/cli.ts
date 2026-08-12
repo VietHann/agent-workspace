@@ -8,7 +8,7 @@ function stackLines(project: Awaited<ReturnType<typeof analyzeProject>>): string
 
 export function createProgram(): Command {
   const program = new Command();
-  program.name("agent-workspace").description("Give your coding agent a team, not another prompt.").version("0.1.0").showHelpAfterError();
+  program.name("agent-workspace").description("Give your coding agent a team, not another prompt.").version("0.1.1").showHelpAfterError();
 
   program.command("init")
     .argument("[path]", "repository to initialize", ".")

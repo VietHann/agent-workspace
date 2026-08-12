@@ -11,7 +11,7 @@
 Turn Codex, Claude Code, Cursor, GitHub Copilot, Gemini CLI, or OpenCode into a repository-aware AI engineering team.
 
 ```bash
-npx agent-workspace init
+npx github:VietHann/agent-workspace init
 ```
 
 ```text
@@ -103,21 +103,21 @@ Node.js 20 or newer is required.
 
 ```bash
 cd your-project
-npx agent-workspace init
-npx agent-workspace doctor
+npx github:VietHann/agent-workspace init
+npx github:VietHann/agent-workspace doctor
 ```
 
 Choose specific integrations when you do not want all adapters:
 
 ```bash
-npx agent-workspace init --tools codex,claude,cursor
+npx github:VietHann/agent-workspace init --tools codex,claude,cursor
 ```
 
 Inspect without writing:
 
 ```bash
-npx agent-workspace analyze
-npx agent-workspace analyze --json
+npx github:VietHann/agent-workspace analyze
+npx github:VietHann/agent-workspace analyze --json
 ```
 
 ## Your default engineering team
@@ -163,7 +163,7 @@ failureConditions:
 Install a bundled skill into an initialized workspace:
 
 ```bash
-npx agent-workspace add security-review
+npx github:VietHann/agent-workspace add security-review
 ```
 
 ## CLI
