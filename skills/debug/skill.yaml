@@ -1,0 +1,27 @@
+kind: skill
+schemaVersion: "1"
+name: debug
+version: 1.0.0
+description: Reproduce a defect, isolate its root cause, implement a minimal correction, and prove the regression is fixed.
+tags: [debugging, reliability]
+requiredContext: [failure report, expected behavior, project context, relevant logs or traces]
+workflow:
+  - id: reproduce
+    action: Create the smallest reliable reproduction and record exact inputs, environment, and observed output.
+    produces: reproduction procedure
+  - id: narrow
+    action: Reduce the suspect surface by tracing data and testing one falsifiable hypothesis at a time.
+    produces: evidence log
+  - id: explain-root-cause
+    action: Identify the faulty invariant or transition and explain why it produces the observed symptom.
+    produces: root-cause statement
+  - id: fix
+    action: Apply the smallest safe correction at the source of the fault rather than masking the symptom.
+    produces: focused fix
+  - id: prove
+    action: Add a regression test and run focused plus relevant surrounding checks.
+    produces: verification results
+constraints: [Do not change multiple independent variables during diagnosis., Do not delete failing tests to obtain a pass., Preserve diagnostic evidence needed to explain the conclusion.]
+outputs: [reproduction, root cause, fix summary, regression test, validation results]
+validation: [The original failure occurs before the fix., The same reproduction passes after the fix., The explanation connects code behavior to the symptom.]
+failureConditions: [The failure cannot be reproduced and evidence is insufficient., The required runtime or data is unavailable., The suspected fix cannot be validated safely.]

@@ -1,0 +1,27 @@
+kind: skill
+schemaVersion: "1"
+name: build-feature
+version: 1.0.0
+description: Deliver a scoped feature from repository discovery through implementation, tests, and self-review.
+tags: [implementation, delivery]
+requiredContext: [feature request and acceptance criteria, project context, relevant code and tests]
+workflow:
+  - id: establish-contract
+    action: Restate observable behavior, exclusions, and unresolved decisions from supplied evidence.
+    produces: concise behavior contract
+  - id: map-impact
+    action: Trace entry points, dependencies, data changes, callers, and existing implementation patterns.
+    produces: affected-file plan
+  - id: implement
+    action: Implement the smallest complete change while preserving unrelated behavior and public contracts.
+    produces: focused production diff
+  - id: validate
+    action: Add or update behavior-focused tests and run the repository's relevant checks.
+    produces: test and check results
+  - id: self-review
+    action: Review the final diff for missed requirements, regressions, security concerns, and accidental scope.
+    produces: readiness summary
+constraints: [Do not invent requirements to fill ambiguity., Do not modify unrelated files., Do not report success when required checks fail.]
+outputs: [implementation summary, changed behavior, validation evidence, residual risks]
+validation: [Every acceptance criterion maps to code or a stated non-change., Relevant automated checks pass., The diff contains no unexplained unrelated changes.]
+failureConditions: [Acceptance criteria are materially ambiguous., A required dependency or environment is unavailable., Validation exposes an unresolved regression.]
