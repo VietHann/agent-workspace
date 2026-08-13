@@ -22,7 +22,7 @@ describe("CLI integration", () => {
     const result = JSON.parse(initialized.stdout) as { score: number; write: { created: string[] } };
     expect(result.score).toBe(40);
     expect(result.write.created).toContain("CLAUDE.md");
-    expect(await readFile(path.join(target, "CLAUDE.md"), "utf8")).toContain("Claude Code repository instructions");
+    expect(await readFile(path.join(target, "CLAUDE.md"), "utf8")).toContain("Claude Code project memory");
 
     const diagnosed = await exec(process.execPath, [tsxCli, workspaceCli, "doctor", target, "--json"], childOptions);
     expect(JSON.parse(diagnosed.stdout)).toMatchObject({ failed: [], score: 100 });

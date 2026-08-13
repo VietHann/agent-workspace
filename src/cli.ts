@@ -8,11 +8,11 @@ function stackLines(project: Awaited<ReturnType<typeof analyzeProject>>): string
 
 export function createProgram(): Command {
   const program = new Command();
-  program.name("agent-workspace").description("Give your coding agent a team, not another prompt.").version("0.1.1").showHelpAfterError();
+  program.name("agent-workspace").description("Install repository-aware context and workflows for coding agents.").version("0.2.0").showHelpAfterError();
 
   program.command("init")
     .argument("[path]", "repository to initialize", ".")
-    .option("--tools <names>", "comma-separated adapters or all", "all")
+    .option("--tools <names>", "auto, all, or comma-separated adapters", "auto")
     .option("--force", "overwrite conflicting files")
     .option("--dry-run", "show what would change without writing")
     .option("--json", "print machine-readable output")
@@ -23,6 +23,12 @@ export function createProgram(): Command {
       console.log(`\n${pc.bold("Detected stack")}\n`);
       const lines = stackLines(result.project);
       console.log(lines.length ? lines.join("\n") : pc.dim("No supported stack markers detected."));
+      const selection = result.adapterSelection === "detected"
+        ? `Detected tool adapters: ${result.adapters.join(", ")}`
+        : result.adapterSelection === "fallback"
+          ? `No tool markers found; generating compatibility adapters: ${result.adapters.join(", ")}`
+          : `Selected tool adapters: ${result.adapters.join(", ")}`;
+      console.log(`\n${pc.dim(selection)}`);
       console.log(`\n${pc.bold("Creating your AI engineering team...")}\n`);
       for (const role of ["Architect", "Implementation Engineer", "Reviewer", "Test Engineer", "Debugger", "Security Reviewer"]) console.log(`${pc.green("✓")} ${role}`);
       console.log(`\n${pc.green("✓")} ${result.write.created.length} files created${result.write.updated.length ? `, ${result.write.updated.length} updated` : ""}`);
