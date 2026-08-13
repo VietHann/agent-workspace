@@ -12,6 +12,7 @@ if (!packageManager) {
 
 const commands = [
   ["exec", "tsx", "src/cli.ts", "validate", "."],
+  ["run", "lint"],
   ["run", "typecheck"],
   ["run", "test"],
 ];
