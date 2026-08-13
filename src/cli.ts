@@ -1,9 +1,27 @@
 import { Command } from "commander";
 import pc from "picocolors";
+import { ZodError } from "zod";
 import { addSkill, analyzeProject, doctorWorkspace, initWorkspace, loadCatalog, validateCatalog } from "./commands.js";
 
 function stackLines(project: Awaited<ReturnType<typeof analyzeProject>>): string[] {
-  return project.facts.map((fact) => `${fact.value} ${pc.dim(`(${fact.source})`)}`);
+  const seen = new Set<string>();
+  return project.facts.filter((fact) => {
+    const key = `${fact.category}:${fact.value}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).map((fact) => `${fact.value} ${pc.dim(`(${fact.source})`)}`);
+}
+
+export function formatCliError(error: unknown): string {
+  if (error instanceof ZodError) {
+    const details = error.issues.map((issue) => {
+      const location = issue.path.length > 0 ? ` at ${issue.path.join(".")}` : "";
+      return `${issue.message}${location}`;
+    });
+    return `Invalid configuration: ${details.join("; ")}`;
+  }
+  return error instanceof Error ? error.message : String(error);
 }
 
 export function createProgram(): Command {
@@ -29,6 +47,9 @@ export function createProgram(): Command {
           ? `No tool markers found; generating compatibility adapters: ${result.adapters.join(", ")}`
           : `Selected tool adapters: ${result.adapters.join(", ")}`;
       console.log(`\n${pc.dim(selection)}`);
+      for (const collision of result.adapterCollisions) {
+        console.log(pc.yellow(`! ${collision.adapters.join(" and ")} share ${collision.path}; one compatible entry point was generated for both.`));
+      }
       console.log(`\n${pc.bold("Creating your AI engineering team...")}\n`);
       for (const role of ["Architect", "Implementation Engineer", "Reviewer", "Test Engineer", "Debugger", "Security Reviewer"]) console.log(`${pc.green("✓")} ${role}`);
       console.log(`\n${pc.green("✓")} ${result.write.created.length} files created${result.write.updated.length ? `, ${result.write.updated.length} updated` : ""}`);
@@ -99,6 +120,6 @@ export async function run(argv = process.argv): Promise<void> {
 }
 
 if (process.env.NODE_ENV !== "test") run().catch((error: unknown) => {
-  console.error(pc.red(`Error: ${error instanceof Error ? error.message : String(error)}`));
+  console.error(pc.red(`Error: ${formatCliError(error)}`));
   process.exitCode = 1;
 });

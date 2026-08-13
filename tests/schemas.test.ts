@@ -11,6 +11,8 @@ describe("catalog and command schemas", () => {
 
   it("parses unique adapters and rejects unsupported names", () => {
     expect(parseAdapters("codex,cursor,codex")).toEqual(["codex", "cursor"]);
-    expect(() => parseAdapters("unknown")).toThrow();
+    expect(() => parseAdapters("unknown")).toThrow(
+      "Unknown adapter \"unknown\". Valid adapters: codex, claude, cursor, copilot, gemini, opencode.",
+    );
   });
 });

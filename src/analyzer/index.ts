@@ -1,4 +1,4 @@
-import { access, readFile, readdir } from "node:fs/promises";
+import { access, readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import type { ProjectContext, ProjectFact } from "../schemas.js";
 
@@ -22,7 +22,7 @@ async function readJson(root: string, relative: string): Promise<Record<string, 
 }
 
 function addFact(facts: ProjectFact[], fact: ProjectFact): void {
-  if (!facts.some((candidate) => candidate.category === fact.category && candidate.value === fact.value)) facts.push(fact);
+  if (!facts.some((candidate) => candidate.category === fact.category && candidate.value === fact.value && candidate.source === fact.source)) facts.push(fact);
 }
 
 function dependencyNames(pkg: Record<string, unknown>): Set<string> {
@@ -49,7 +49,59 @@ function patternContainers(patterns: string[]): string[] {
   return patterns.map((pattern) => pattern.replace(/\\/g, "/").split("/")[0]).filter((part): part is string => Boolean(part && !part.includes("*") && part !== "."));
 }
 
-async function discoverPackages(root: string, pkg: Record<string, unknown> | undefined, pnpmWorkspace: string): Promise<string[]> {
+function cargoWorkspaceMembers(content: string): string[] {
+  const workspace = content.match(/\[workspace\]([\s\S]*?)(?=\n\s*\[|$)/)?.[1] ?? "";
+  const members = workspace.match(/members\s*=\s*\[([\s\S]*?)\]/)?.[1] ?? "";
+  return [...members.matchAll(/["']([^"']+)["']/g)].map((match) => match[1]!).filter(Boolean);
+}
+
+function goWorkspaceMembers(content: string): string[] {
+  const members: string[] = [];
+  let inBlock = false;
+  for (const rawLine of content.split(/\r?\n/)) {
+    const line = rawLine.replace(/\/\/.*$/, "").trim();
+    if (!line) continue;
+    if (/^use\s*\($/.test(line)) { inBlock = true; continue; }
+    if (inBlock && line === ")") { inBlock = false; continue; }
+    const candidate = inBlock ? line : line.match(/^use\s+(.+)$/)?.[1];
+    if (candidate) members.push(candidate.replace(/^["']|["']$/g, "").trim());
+  }
+  return members;
+}
+
+function mavenWorkspaceMembers(content: string): string[] {
+  return [...content.matchAll(/<module>\s*([^<]+?)\s*<\/module>/g)].map((match) => match[1]!.trim()).filter(Boolean);
+}
+
+async function expandWorkspaceMembers(root: string, patterns: string[], manifests: string[]): Promise<string[]> {
+  const boundaries: string[] = [];
+  for (const rawPattern of patterns) {
+    const pattern = rawPattern.replace(/\\/g, "/").replace(/^\.\//, "").replace(/\/$/, "");
+    if (!pattern || path.isAbsolute(pattern) || pattern === ".." || pattern.startsWith("../")) continue;
+    if (pattern.endsWith("/*") && !pattern.slice(0, -2).includes("*")) {
+      const container = pattern.slice(0, -2);
+      if (!await exists(root, container)) continue;
+      for (const entry of await readdir(path.join(root, container), { withFileTypes: true })) {
+        if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
+        const candidate = `${container}/${entry.name}`;
+        if ((await Promise.all(manifests.map((manifest) => exists(root, `${candidate}/${manifest}`)))).some(Boolean)) boundaries.push(candidate);
+      }
+      continue;
+    }
+    if (pattern.includes("*")) continue;
+    if ((await Promise.all(manifests.map((manifest) => exists(root, `${pattern}/${manifest}`)))).some(Boolean)) boundaries.push(pattern);
+  }
+  return boundaries;
+}
+
+async function discoverPackages(
+  root: string,
+  pkg: Record<string, unknown> | undefined,
+  pnpmWorkspace: string,
+  cargoToml: string,
+  goWork: string,
+  pomXml: string,
+): Promise<string[]> {
   const containers = [...new Set([...PACKAGE_CONTAINERS, ...patternContainers(workspacePatterns(pkg, pnpmWorkspace))])];
   const boundaries: string[] = [];
   for (const container of containers) {
@@ -65,6 +117,9 @@ async function discoverPackages(root: string, pkg: Record<string, unknown> | und
       }
     }
   }
+  boundaries.push(...await expandWorkspaceMembers(root, cargoWorkspaceMembers(cargoToml), ["Cargo.toml"]));
+  boundaries.push(...await expandWorkspaceMembers(root, goWorkspaceMembers(goWork), ["go.mod"]));
+  boundaries.push(...await expandWorkspaceMembers(root, mavenWorkspaceMembers(pomXml), ["pom.xml"]));
   return [...new Set(boundaries)].sort();
 }
 
@@ -79,11 +134,21 @@ async function collectDirectorySignals(root: string, bases: string[], names: str
 
 export async function analyzeProject(inputRoot: string): Promise<ProjectContext> {
   const root = path.resolve(inputRoot);
+  try {
+    const target = await stat(root);
+    if (!target.isDirectory()) throw new Error(`Repository path is not a directory: ${root}`);
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith("Repository path is not a directory:")) throw error;
+    throw new Error(`Repository path does not exist or cannot be accessed: ${root}`, { cause: error });
+  }
   const pkg = await readJson(root, "package.json");
   const pyproject = await exists(root, "pyproject.toml") ? await readFile(path.join(root, "pyproject.toml"), "utf8") : "";
   const pnpmWorkspace = await exists(root, "pnpm-workspace.yaml") ? await readFile(path.join(root, "pnpm-workspace.yaml"), "utf8") : "";
+  const cargoToml = await exists(root, "Cargo.toml") ? await readFile(path.join(root, "Cargo.toml"), "utf8") : "";
+  const goWork = await exists(root, "go.work") ? await readFile(path.join(root, "go.work"), "utf8") : "";
+  const pomXml = await exists(root, "pom.xml") ? await readFile(path.join(root, "pom.xml"), "utf8") : "";
   const facts: ProjectFact[] = [];
-  const packageBoundaries = await discoverPackages(root, pkg, pnpmWorkspace);
+  const packageBoundaries = await discoverPackages(root, pkg, pnpmWorkspace, cargoToml, goWork, pomXml);
   const packageRecords = (await Promise.all(packageBoundaries.map(async (boundary) => ({ boundary, pkg: await readJson(root, `${boundary}/package.json`) })))).filter((item): item is { boundary: string; pkg: Record<string, unknown> } => Boolean(item.pkg));
   const dependencySources = [...(pkg ? [{ boundary: ".", pkg }] : []), ...packageRecords];
 
@@ -101,7 +166,21 @@ export async function analyzeProject(inputRoot: string): Promise<ProjectContext>
     [".github/workflows", "infrastructure", "GitHub Actions"], ["terraform", "infrastructure", "Terraform"], ["k8s", "infrastructure", "Kubernetes"], ["helm", "infrastructure", "Helm"],
   ];
   for (const [file, category, value] of fileFacts) if (await exists(root, file)) addFact(facts, { category, value, source: file, confidence: "detected" });
-  if (packageBoundaries.length > 0) addFact(facts, { category: "tooling", value: "Workspace/monorepo", source: pnpmWorkspace ? "pnpm-workspace.yaml" : "package.json workspaces or package containers", confidence: "detected" });
+  for (const boundary of packageBoundaries) {
+    const languageManifests: Array<[string, string]> = [["go.mod", "Go"], ["Cargo.toml", "Rust"], ["pom.xml", "Java"]];
+    for (const [manifest, language] of languageManifests) {
+      const source = `${boundary}/${manifest}`;
+      if (await exists(root, source)) addFact(facts, { category: "language", value: language, source, confidence: "detected" });
+    }
+  }
+  if (packageBoundaries.length > 0) {
+    const workspaceSource = pnpmWorkspace ? "pnpm-workspace.yaml"
+      : goWork ? "go.work"
+        : cargoWorkspaceMembers(cargoToml).length > 0 ? "Cargo.toml:[workspace]"
+          : mavenWorkspaceMembers(pomXml).length > 0 ? "pom.xml:<modules>"
+            : "package.json workspaces or package containers";
+    addFact(facts, { category: "tooling", value: "Workspace/monorepo", source: workspaceSource, confidence: "detected" });
+  }
 
   if (pyproject || await exists(root, "requirements.txt")) {
     addFact(facts, { category: "language", value: "Python", source: pyproject ? "pyproject.toml" : "requirements.txt", confidence: "detected" });

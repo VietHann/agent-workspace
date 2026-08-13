@@ -61,4 +61,21 @@ describe("workspace generation", () => {
 
     expect(result.adapters).toEqual(["claude", "gemini"]);
   });
+
+  it("detects stale repository context and adapter drift", async () => {
+    const root = await makeTempProject();
+    const packagePath = path.join(root, "package.json");
+    await writeFile(packagePath, JSON.stringify({ name: "fixture" }));
+    await initWorkspace(root, { tools: "claude" });
+
+    await writeFile(packagePath, JSON.stringify({ name: "fixture", dependencies: { next: "15.0.0" } }));
+    const stale = await doctorWorkspace(root);
+    expect(stale.failed).toContain("project context is stale; run `agent-workspace init --force`");
+    expect(stale.failed).toContain("one or more adapter entry points have drifted; run `agent-workspace init --force`");
+
+    await initWorkspace(root, { tools: "claude", force: true });
+    await writeFile(path.join(root, "CLAUDE.md"), "# manually edited\n");
+    const drifted = await doctorWorkspace(root);
+    expect(drifted.failed).toContain("one or more adapter entry points have drifted; run `agent-workspace init --force`");
+  });
 });

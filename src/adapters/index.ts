@@ -21,6 +21,23 @@ export const adapterOutputPaths: Record<AdapterName, string> = {
   opencode: "AGENTS.md",
 };
 
+export interface AdapterCollision {
+  path: string;
+  adapters: AdapterName[];
+}
+
+export function findAdapterCollisions(names: AdapterName[]): AdapterCollision[] {
+  const byPath = new Map<string, AdapterName[]>();
+  for (const name of names) {
+    const outputPath = adapterOutputPaths[name];
+    byPath.set(outputPath, [...(byPath.get(outputPath) ?? []), name]);
+  }
+  return [...byPath.entries()]
+    .filter(([, adaptersForPath]) => adaptersForPath.length > 1)
+    .map(([outputPath, adaptersForPath]) => ({ path: outputPath, adapters: adaptersForPath }))
+    .sort((a, b) => a.path.localeCompare(b.path));
+}
+
 async function markerExists(root: string, relative: string): Promise<boolean> {
   try { await access(path.join(root, relative)); return true; } catch { return false; }
 }
@@ -30,12 +47,12 @@ async function detectMarkers(name: AdapterName, project: ProjectContext): Promis
 }
 
 function projectSummary(project: ProjectContext): string {
-  const stack = project.facts.map((fact) => fact.value).slice(0, 8).join(", ") || "No supported stack markers detected";
+  const stack = [...new Set(project.facts.map((fact) => fact.value))].slice(0, 8).join(", ") || "No supported stack markers detected";
   const boundaries = project.packageBoundaries.length > 0 ? project.packageBoundaries.join(", ") : "single root or no package boundaries detected";
   return `Project: ${project.name}\nDetected stack: ${stack}\nPackage boundaries: ${boundaries}`;
 }
 
-function canonicalRules(project: ProjectContext): string {
+function canonicalRules(): string {
   return `Read \`.agent-workspace/context/project.md\` before changing code. It separates detected evidence from editable recommendations.
 Choose the relevant role in \`.agent-workspace/agents/\` and workflow in \`.agent-workspace/skills/\`.
 Use repository commands recorded in project context. Keep changes scoped and report the checks actually run.
@@ -50,7 +67,7 @@ ${projectSummary(project)}
 
 ## Working contract
 
-${canonicalRules(project)}
+${canonicalRules()}
 
 For substantial work, state the selected role and skill, then execute the skill's ordered workflow. Stop when a listed failure condition applies instead of claiming success.
 `;
@@ -70,7 +87,7 @@ ${projectSummary(project)}
 
 ## Execution
 
-${canonicalRules(project)}
+${canonicalRules()}
 
 Use focused exploration before broad changes. Summarize assumptions, files changed, commands run, and residual risk when finished.
 `;
@@ -86,7 +103,7 @@ alwaysApply: true
 
 ${projectSummary(project)}
 
-${canonicalRules(project)}
+${canonicalRules()}
 
 Apply the narrowest relevant skill from \`.agent-workspace/skills/\`. Use its validation list as completion criteria and surface its failure conditions explicitly.
 `;
@@ -120,7 +137,7 @@ ${projectSummary(project)}
 3. \`.agent-workspace/agents/\` defines reviewable engineering responsibilities.
 4. \`.agent-workspace/skills/\` defines ordered workflows and validation gates.
 
-${canonicalRules(project)}
+${canonicalRules()}
 `;
 }
 

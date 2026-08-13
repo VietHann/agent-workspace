@@ -1,10 +1,10 @@
 import { access, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import YAML from "yaml";
-import { adapterOutputPaths, detectAdapters } from "./adapters/index.js";
+import { adapterOutputPaths, detectAdapters, findAdapterCollisions, type AdapterCollision } from "./adapters/index.js";
 import { analyzeProject } from "./analyzer/index.js";
 import { loadCatalog } from "./catalog/index.js";
-import { buildGeneratedFiles, createManifest, workspaceExists, writeGeneratedFiles, type WriteResult } from "./generator.js";
+import { buildGeneratedFiles, workspaceExists, writeGeneratedFiles, type WriteResult } from "./generator.js";
 import { adapterNameSchema, workspaceManifestSchema, type AdapterName, type ProjectContext } from "./schemas.js";
 
 export const ALL_ADAPTERS: AdapterName[] = ["codex", "claude", "cursor", "copilot", "gemini", "opencode"];
@@ -14,6 +14,7 @@ export interface InitResult {
   project: ProjectContext;
   write: WriteResult;
   adapters: AdapterName[];
+  adapterCollisions: AdapterCollision[];
   adapterSelection: "detected" | "fallback" | "explicit";
   score: number;
 }
@@ -22,7 +23,12 @@ export function parseAdapters(input = "all"): AdapterName[] {
   if (input === "all") return ALL_ADAPTERS;
   const names = input.split(",").map((name) => name.trim()).filter(Boolean);
   if (names.length === 0) throw new Error("Choose at least one adapter.");
-  return [...new Set(names.map((name) => adapterNameSchema.parse(name)))];
+  const parsed = names.map((name) => {
+    const result = adapterNameSchema.safeParse(name);
+    if (!result.success) throw new Error(`Unknown adapter "${name}". Valid adapters: ${ALL_ADAPTERS.join(", ")}.`);
+    return result.data;
+  });
+  return [...new Set(parsed)];
 }
 
 export async function resolveAdapters(project: ProjectContext, input = "auto"): Promise<{ names: AdapterName[]; selection: InitResult["adapterSelection"] }> {
@@ -46,7 +52,18 @@ async function readExistingAdapters(root: string): Promise<AdapterName[]> {
 }
 
 export function contextCoverageScore(project: ProjectContext): number {
-  const checks = [project.facts.length > 0, project.commands.length > 0, project.sourceDirectories.length > 0, project.testDirectories.length > 0, project.conventions.length > 0];
+  const units = project.packageBoundaries.length > 0 ? project.packageBoundaries : ["."];
+  const belongsToUnit = (source: string, unit: string): boolean => {
+    if (unit !== ".") return source === unit || source.startsWith(`${unit}/`);
+    return !project.packageBoundaries.some((boundary) => source === boundary || source.startsWith(`${boundary}/`));
+  };
+  const checks = units.flatMap((unit) => [
+    project.facts.some((fact) => fact.category !== "tooling" && belongsToUnit(fact.source, unit)),
+    project.commands.some((command) => belongsToUnit(command.source, unit)),
+    project.sourceDirectories.some((directory) => belongsToUnit(directory, unit)),
+    project.testDirectories.some((directory) => belongsToUnit(directory, unit)),
+    project.conventions.some((convention) => belongsToUnit(convention.source, unit)),
+  ]);
   return Math.round((checks.filter(Boolean).length / checks.length) * 100);
 }
 
@@ -57,7 +74,14 @@ export async function initWorkspace(inputRoot: string, options: InitOptions = {}
   const selected = await resolveAdapters(project, options.tools);
   const files = await buildGeneratedFiles(project, catalog.agents, catalog.skills, selected.names);
   const write = await writeGeneratedFiles(root, files, options);
-  return { project, write, adapters: selected.names, adapterSelection: selected.selection, score: contextCoverageScore(project) };
+  return {
+    project,
+    write,
+    adapters: selected.names,
+    adapterCollisions: findAdapterCollisions(selected.names),
+    adapterSelection: selected.selection,
+    score: contextCoverageScore(project),
+  };
 }
 
 export async function addSkill(inputRoot: string, skillName: string): Promise<"added" | "present"> {
@@ -104,8 +128,33 @@ export async function doctorWorkspace(inputRoot: string): Promise<DoctorResult> 
   const adapterPaths = [...new Set(manifest.adapters.map((name) => adapterOutputPaths[name]))];
   const adaptersExist = (await Promise.all(adapterPaths.map((relative) => fileExists(path.join(root, relative))))).every(Boolean);
   (adaptersExist ? passed : failed).push(adaptersExist ? "all adapter entry points exist" : "one or more adapter entry points are missing");
+
+  const currentProject = await analyzeProject(root);
+  const catalog = await loadCatalog();
+  const desiredFiles = await buildGeneratedFiles(currentProject, catalog.agents, catalog.skills, manifest.adapters);
+  const desiredByPath = new Map(desiredFiles.map((file) => [file.path, file.content]));
+  const contextPath = ".agent-workspace/context/project.md";
+  const contextMatches = await fileMatches(path.join(root, contextPath), desiredByPath.get(contextPath));
+  (contextMatches ? passed : failed).push(
+    contextMatches
+      ? "project context matches current repository evidence"
+      : "project context is stale; run `agent-workspace init --force`",
+  );
+  const adaptersMatch = adaptersExist && (await Promise.all(adapterPaths.map((relative) =>
+    fileMatches(path.join(root, relative), desiredByPath.get(relative)),
+  ))).every(Boolean);
+  (adaptersMatch ? passed : failed).push(
+    adaptersMatch
+      ? "adapter entry points match current repository evidence"
+      : "one or more adapter entry points have drifted; run `agent-workspace init --force`",
+  );
   const total = passed.length + failed.length;
   return { passed, failed, score: total === 0 ? 0 : Math.round((passed.length / total) * 100) };
+}
+
+async function fileMatches(file: string, expected: string | undefined): Promise<boolean> {
+  if (expected === undefined) return false;
+  try { return await readFile(file, "utf8") === expected; } catch { return false; }
 }
 
 export async function validateCatalog(inputRoot: string): Promise<{ agents: number; skills: number }> {

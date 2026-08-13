@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { adapters, detectAdapters } from "../src/adapters/index.js";
+import { adapters, detectAdapters, findAdapterCollisions } from "../src/adapters/index.js";
 import { analyzeProject } from "../src/analyzer/index.js";
 import { createManifest } from "../src/generator.js";
 import { loadCatalog } from "../src/catalog/index.js";
@@ -34,5 +34,11 @@ describe("tool adapters", () => {
     expect(copilot?.path).toBe(".github/copilot-instructions.md");
     expect(copilot?.content).toContain("Prefer repository patterns");
     expect(claude?.content).not.toBe(copilot?.content);
+  });
+
+  it("reports shared output paths instead of silently hiding adapter collisions", () => {
+    expect(findAdapterCollisions(["codex", "opencode"])).toEqual([
+      { path: "AGENTS.md", adapters: ["codex", "opencode"] },
+    ]);
   });
 });
