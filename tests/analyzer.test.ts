@@ -35,4 +35,24 @@ describe("analyzeProject", () => {
     expect(result.facts).toEqual([]);
     expect(result.recommendations[0]).toMatch(/no supported stack markers/i);
   });
+
+  it("discovers bounded monorepo packages and their stack signals", async () => {
+    const root = await makeTempProject();
+    await mkdir(path.join(root, "apps", "web", "src"), { recursive: true });
+    await mkdir(path.join(root, "packages", "api", "tests"), { recursive: true });
+    await writeFile(path.join(root, "package.json"), JSON.stringify({ name: "workspace", private: true, workspaces: ["apps/*", "packages/*"], scripts: { test: "pnpm -r test" } }));
+    await writeFile(path.join(root, "pnpm-workspace.yaml"), "packages:\n  - 'apps/*'\n  - 'packages/*'\n");
+    await writeFile(path.join(root, "apps", "web", "package.json"), JSON.stringify({ name: "@workspace/web", scripts: { build: "next build" }, dependencies: { next: "15.0.0", react: "19.0.0" }, devDependencies: { typescript: "5.0.0" } }));
+    await writeFile(path.join(root, "apps", "web", "tsconfig.json"), JSON.stringify({ compilerOptions: { strict: true } }));
+    await writeFile(path.join(root, "packages", "api", "package.json"), JSON.stringify({ name: "@workspace/api", scripts: { test: "vitest run" }, dependencies: { express: "5.0.0", pg: "8.0.0" }, devDependencies: { vitest: "3.0.0" } }));
+
+    const result = await analyzeProject(root);
+
+    expect(result.packageBoundaries).toEqual(["apps/web", "packages/api"]);
+    expect(result.sourceDirectories).toContain("apps/web/src");
+    expect(result.testDirectories).toContain("packages/api/tests");
+    expect(result.facts.map((fact) => fact.value)).toEqual(expect.arrayContaining(["Workspace/monorepo", "Next.js", "Express", "PostgreSQL", "Vitest"]));
+    expect(result.commands).toContainEqual({ name: "apps/web:build", command: "next build", source: "apps/web/package.json" });
+    expect(result.conventions).toContainEqual({ statement: "TypeScript strict mode is enabled in apps/web.", source: "apps/web/tsconfig.json", confidence: "detected" });
+  });
 });
