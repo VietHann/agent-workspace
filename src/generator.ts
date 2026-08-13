@@ -4,7 +4,7 @@ import YAML from "yaml";
 import { adapters, uniqueAdapterFiles } from "./adapters/index.js";
 import type { AdapterName, AgentDefinition, GeneratedFile, ProjectContext, SkillDefinition, WorkspaceManifest } from "./schemas.js";
 
-export const GENERATOR_VERSION = "0.2.0";
+export const GENERATOR_VERSION = "0.2.1";
 
 function yaml(value: unknown): string {
   return YAML.stringify(value, { lineWidth: 100 });

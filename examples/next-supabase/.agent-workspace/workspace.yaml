@@ -2,7 +2,7 @@ kind: workspace
 schemaVersion: "1"
 generator:
   name: agent-workspace
-  version: 0.2.0
+  version: 0.2.1
 project:
   name: example-next-supabase
   root: .

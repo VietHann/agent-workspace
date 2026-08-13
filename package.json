@@ -1,6 +1,6 @@
 {
   "name": "@viethann/agent-workspace",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Install repository-aware context and validated workflows for coding agents.",
   "type": "module",
   "bin": {

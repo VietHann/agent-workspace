@@ -26,7 +26,7 @@ export function formatCliError(error: unknown): string {
 
 export function createProgram(): Command {
   const program = new Command();
-  program.name("agent-workspace").description("Install repository-aware context and workflows for coding agents.").version("0.2.0").showHelpAfterError();
+  program.name("agent-workspace").description("Install repository-aware context and workflows for coding agents.").version("0.2.1").showHelpAfterError();
 
   program.command("init")
     .argument("[path]", "repository to initialize", ".")
