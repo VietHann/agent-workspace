@@ -1,6 +1,7 @@
 import { access, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import YAML from "yaml";
+import { adapterOutputPaths, detectAdapters } from "./adapters/index.js";
 import { analyzeProject } from "./analyzer/index.js";
 import { loadCatalog } from "./catalog/index.js";
 import { buildGeneratedFiles, createManifest, workspaceExists, writeGeneratedFiles, type WriteResult } from "./generator.js";
@@ -9,13 +10,39 @@ import { adapterNameSchema, workspaceManifestSchema, type AdapterName, type Proj
 export const ALL_ADAPTERS: AdapterName[] = ["codex", "claude", "cursor", "copilot", "gemini", "opencode"];
 
 export interface InitOptions { tools?: string; force?: boolean; dryRun?: boolean }
-export interface InitResult { project: ProjectContext; write: WriteResult; adapters: AdapterName[]; score: number }
+export interface InitResult {
+  project: ProjectContext;
+  write: WriteResult;
+  adapters: AdapterName[];
+  adapterSelection: "detected" | "fallback" | "explicit";
+  score: number;
+}
 
 export function parseAdapters(input = "all"): AdapterName[] {
   if (input === "all") return ALL_ADAPTERS;
   const names = input.split(",").map((name) => name.trim()).filter(Boolean);
   if (names.length === 0) throw new Error("Choose at least one adapter.");
   return [...new Set(names.map((name) => adapterNameSchema.parse(name)))];
+}
+
+export async function resolveAdapters(project: ProjectContext, input = "auto"): Promise<{ names: AdapterName[]; selection: InitResult["adapterSelection"] }> {
+  if (input !== "auto") return { names: parseAdapters(input), selection: "explicit" };
+  const detected = await detectAdapters(project);
+  const existing = await readExistingAdapters(project.root);
+  const names = ALL_ADAPTERS.filter((name) => detected.includes(name) || existing.includes(name));
+  return names.length > 0
+    ? { names, selection: "detected" }
+    : { names: ALL_ADAPTERS, selection: "fallback" };
+}
+
+async function readExistingAdapters(root: string): Promise<AdapterName[]> {
+  try {
+    const manifestPath = path.join(root, ".agent-workspace", "workspace.yaml");
+    const parsed = workspaceManifestSchema.safeParse(YAML.parse(await readFile(manifestPath, "utf8")));
+    return parsed.success ? parsed.data.adapters : [];
+  } catch {
+    return [];
+  }
 }
 
 export function contextCoverageScore(project: ProjectContext): number {
@@ -27,10 +54,10 @@ export async function initWorkspace(inputRoot: string, options: InitOptions = {}
   const root = path.resolve(inputRoot);
   const project = await analyzeProject(root);
   const catalog = await loadCatalog();
-  const selectedAdapters = parseAdapters(options.tools);
-  const files = await buildGeneratedFiles(project, catalog.agents, catalog.skills, selectedAdapters);
+  const selected = await resolveAdapters(project, options.tools);
+  const files = await buildGeneratedFiles(project, catalog.agents, catalog.skills, selected.names);
   const write = await writeGeneratedFiles(root, files, options);
-  return { project, write, adapters: selectedAdapters, score: contextCoverageScore(project) };
+  return { project, write, adapters: selected.names, adapterSelection: selected.selection, score: contextCoverageScore(project) };
 }
 
 export async function addSkill(inputRoot: string, skillName: string): Promise<"added" | "present"> {
@@ -74,6 +101,9 @@ export async function doctorWorkspace(inputRoot: string): Promise<DoctorResult> 
   (agentsExist ? passed : failed).push(agentsExist ? "all agent files exist" : "one or more agent files are missing");
   const skillsExist = (await Promise.all(manifest.skills.map((item) => fileExists(path.join(root, ".agent-workspace", "skills", item.name, "skill.yaml"))))).every(Boolean);
   (skillsExist ? passed : failed).push(skillsExist ? "all skill files exist" : "one or more skill files are missing");
+  const adapterPaths = [...new Set(manifest.adapters.map((name) => adapterOutputPaths[name]))];
+  const adaptersExist = (await Promise.all(adapterPaths.map((relative) => fileExists(path.join(root, relative))))).every(Boolean);
+  (adaptersExist ? passed : failed).push(adaptersExist ? "all adapter entry points exist" : "one or more adapter entry points are missing");
   const total = passed.length + failed.length;
   return { passed, failed, score: total === 0 ? 0 : Math.round((passed.length / total) * 100) };
 }

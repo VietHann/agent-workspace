@@ -40,4 +40,25 @@ describe("workspace generation", () => {
     expect(result.write.created).toContain("CLAUDE.md");
     await expect(readFile(path.join(root, "CLAUDE.md"), "utf8")).rejects.toThrow();
   });
+
+  it("auto-detects an existing tool and avoids unrelated adapter files", async () => {
+    const root = await makeTempProject();
+    await mkdir(path.join(root, ".claude"));
+    await writeFile(path.join(root, "package.json"), JSON.stringify({ name: "fixture" }));
+    const result = await initWorkspace(root);
+
+    expect(result.adapterSelection).toBe("detected");
+    expect(result.adapters).toEqual(["claude"]);
+    expect(result.write.created).toContain("CLAUDE.md");
+    expect(result.write.created).not.toContain(".github/copilot-instructions.md");
+  });
+
+  it("preserves configured adapters when init runs again in auto mode", async () => {
+    const root = await makeTempProject();
+    await writeFile(path.join(root, "package.json"), JSON.stringify({ name: "fixture" }));
+    await initWorkspace(root, { tools: "claude,gemini" });
+    const result = await initWorkspace(root);
+
+    expect(result.adapters).toEqual(["claude", "gemini"]);
+  });
 });
