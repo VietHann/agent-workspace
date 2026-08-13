@@ -22,7 +22,7 @@ The 0.2 MVP delivers:
 - six useful roles: architect, implementation engineer, reviewer, test engineer, debugger, and security reviewer;
 - ten validated skills;
 - automatic tool-marker detection and tailored adapters for Codex/OpenCode, Claude Code, Cursor, GitHub Copilot, and Gemini CLI;
-- bounded monorepo discovery across common workspace containers and nested package manifests;
+- bounded monorepo discovery across npm/pnpm workspaces, Cargo members, `go.work` modules, Maven modules, and common package containers;
 - `init`, `analyze`, `add`, `list`, `doctor`, and `validate` commands;
 - deterministic output and non-destructive conflict handling;
 - contribution validation, tests, templates, and an example fixture.
@@ -103,7 +103,7 @@ Lists bundled agents and skills with concise descriptions.
 
 ### `agent-workspace doctor [path]`
 
-Checks manifest validity, referenced extensions, expected files, and adapter entry points. The workspace health score is the percentage of explicit integrity checks that pass. Initialization separately reports context coverage from five evidence categories.
+Checks manifest validity, referenced extensions, expected files, current repository evidence, and adapter entry-point drift. The workspace health score is the percentage of explicit integrity checks that pass. Initialization reports coverage across five evidence categories for every detected package boundary.
 
 ### `agent-workspace validate [path]`
 

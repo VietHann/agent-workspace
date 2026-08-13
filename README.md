@@ -100,7 +100,8 @@ Analysis is deliberately honest:
 - **Detected facts** include their source, such as `package.json:vitest`.
 - **Inferred conventions** are marked provisional.
 - **Editable recommendations** are never presented as repository truth.
-- **Monorepo discovery** reads bounded package manifests and workspace containers; it does not pretend dependency detection is AST-level architecture analysis.
+- **Monorepo discovery** reads npm/pnpm workspaces, Cargo members, `go.work` modules, Maven modules, and bounded package containers; it does not pretend dependency detection is AST-level architecture analysis.
+- **Package-aware coverage** scores every detected package instead of letting one well-documented package hide gaps in the rest of a monorepo.
 
 Existing files are preserved by default. Use `--dry-run` to preview or `--force` when you intentionally want to replace conflicts.
 
@@ -121,6 +122,8 @@ npx --yes --package=git+https://github.com/VietHann/agent-workspace.git agent-wo
 ```
 
 By default, `init` detects existing markers such as `.claude/`, `.cursor/`, `AGENTS.md`, Copilot instructions, `GEMINI.md`, and OpenCode configuration. If no marker exists, it generates all compatibility adapters. Use `--tools all` or an explicit list to override detection.
+
+Codex and OpenCode intentionally share `AGENTS.md`. When both are selected, the CLI reports that shared output explicitly instead of silently discarding an adapter projection.
 
 Inspect without writing:
 
@@ -186,7 +189,9 @@ agent-workspace doctor [path]     Check workspace integrity
 agent-workspace validate [path]   Validate contribution schemas
 ```
 
-`init` and `analyze` support machine-readable JSON. Generated output is deterministic apart from the recorded analysis timestamp.
+`init` and `analyze` support machine-readable JSON. Missing paths and invalid adapters fail with actionable errors. Generated output is deterministic apart from the recorded analysis timestamp.
+
+`doctor` checks more than file existence: it re-analyzes repository evidence and reports stale project context or adapter drift, with the exact refresh command.
 
 ## Make it yours
 
@@ -221,6 +226,7 @@ Community extensions are a core product surface. Add skills, agents, detectors, 
 
 ```bash
 pnpm install
+pnpm lint
 pnpm validate
 pnpm build
 ```
@@ -243,6 +249,7 @@ Not ready to open a PR? Start a [discussion](https://github.com/VietHann/agent-w
 
 - **0.1:** analyzer, canonical workspace, six roles, ten skills, six tool targets, safe CLI, validation.
 - **0.2:** bounded monorepo analysis, automatic tool detection, tailored adapter output, and adapter integrity checks.
+- **0.2.1:** multi-language workspace discovery, package-aware coverage, drift detection, friendly CLI failures, and enforced linting.
 - **0.3:** framework packs, Git-based extension sources, and managed-file update previews.
 - **0.4:** a searchable static extension catalog with maintenance and validation signals.
 

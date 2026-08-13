@@ -8,7 +8,22 @@ All notable changes to `agent-workspace` are documented here. The project follow
 
 - Framework packs and Git-based extension sources.
 - Managed-file update previews and compatibility fixtures.
-- Deeper language-specific analysis where evidence justifies the added complexity.
+- Deeper language-specific source analysis where evidence justifies the added complexity.
+
+## [0.2.1] - 2026-08-13
+
+### Added
+
+- Declared workspace discovery for Cargo members, Go modules from `go.work`, and Maven modules.
+- Package-aware context coverage scoring for monorepos.
+- Drift detection for generated project context and adapter entry points in `doctor`.
+- ESLint flat configuration enforced by `pnpm validate`.
+- Explicit adapter collision metadata and terminal warnings for shared output paths.
+
+### Fixed
+
+- `analyze` and `init` now reject missing paths and files instead of reporting an empty repository.
+- Invalid adapter names now produce an actionable list of valid options instead of raw Zod JSON.
 
 ## [0.2.0] - 2026-08-13
 
@@ -46,7 +61,8 @@ All notable changes to `agent-workspace` are documented here. The project follow
 - `init`, `analyze`, `add`, `list`, `doctor`, and `validate` commands.
 - Cross-platform tests, a generated example workspace, contribution templates, and community health documentation.
 
-[Unreleased]: https://github.com/VietHann/agent-workspace/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/VietHann/agent-workspace/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/VietHann/agent-workspace/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/VietHann/agent-workspace/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/VietHann/agent-workspace/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/VietHann/agent-workspace/releases/tag/v0.1.0

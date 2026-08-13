@@ -8,6 +8,7 @@ For early design feedback, start a [GitHub Discussion](https://github.com/VietHa
 
 ```bash
 pnpm install
+pnpm lint
 pnpm validate
 pnpm build
 ```
