@@ -8,7 +8,7 @@
 [![TypeScript](https://img.shields.io/badge/built%20with-TypeScript-3178c6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-2563eb.svg)](CONTRIBUTING.md)
 
-Turn Codex, Claude Code, Cursor, GitHub Copilot, Gemini CLI, or OpenCode into a repository-aware AI engineering team.
+Install a shared, repository-aware operating layer for Codex, Claude Code, Cursor, GitHub Copilot, Gemini CLI, and OpenCode.
 
 ```bash
 npx --yes --package=git+https://github.com/VietHann/agent-workspace.git agent-workspace init
@@ -40,6 +40,12 @@ Your AI engineering workspace is ready.
 
 No account. No API key. No agent replacement. `agent-workspace` analyzes the codebase, writes a vendor-neutral engineering workspace, and connects it to the coding tools you already use.
 
+## What this is - and what it is not
+
+`agent-workspace` is a **context and workflow scaffolding generator**. Its "team" is a portable set of differentiated roles, evidence-backed repository context, and validated engineering workflows that existing coding agents can read.
+
+It does not run models, schedule autonomous workers, guarantee that an LLM follows instructions, or claim to be a multi-agent runtime. Tools with delegation features can map these roles onto subagents; tools without delegation use them as focused operating modes. The value is inspectable project knowledge and repeatable workflows - not hidden orchestration.
+
 ## Stop repeating the repository every session
 
 Without a workspace:
@@ -67,7 +73,7 @@ Reviewer           → catches regressions before the PR
 ✓ ready for review
 ```
 
-This is not a prompt collection. Roles and skills have versioned schemas, required context, ordered workflows, constraints, expected outputs, validation checks, and failure conditions. They are inspectable, testable, forkable project assets.
+This is more disciplined than a prompt collection, but it is still instruction-driven. Roles and skills have versioned schemas, required context, ordered workflows, constraints, expected outputs, validation checks, and failure conditions. They are inspectable, testable, forkable project assets.
 
 ## What it creates
 
@@ -87,13 +93,14 @@ GEMINI.md                   # Gemini CLI
 .github/copilot-instructions.md
 ```
 
-The `.agent-workspace/` directory is the source of truth. Tool files are thin adapters, so your engineering system stays portable instead of drifting into six copies.
+The `.agent-workspace/` directory is the source of truth. Tool files are tailored adapters: Claude gets project-memory guidance, Cursor gets an always-applied MDC rule, Copilot gets concise repository instructions, and the remaining tools receive their repository entry points.
 
 Analysis is deliberately honest:
 
 - **Detected facts** include their source, such as `package.json:vitest`.
 - **Inferred conventions** are marked provisional.
 - **Editable recommendations** are never presented as repository truth.
+- **Monorepo discovery** reads bounded package manifests and workspace containers; it does not pretend dependency detection is AST-level architecture analysis.
 
 Existing files are preserved by default. Use `--dry-run` to preview or `--force` when you intentionally want to replace conflicts.
 
@@ -112,6 +119,8 @@ Choose specific integrations when you do not want all adapters:
 ```bash
 npx --yes --package=git+https://github.com/VietHann/agent-workspace.git agent-workspace init --tools codex,claude,cursor
 ```
+
+By default, `init` detects existing markers such as `.claude/`, `.cursor/`, `AGENTS.md`, Copilot instructions, `GEMINI.md`, and OpenCode configuration. If no marker exists, it generates all compatibility adapters. Use `--tools all` or an explicit list to override detection.
 
 Inspect without writing:
 
@@ -233,8 +242,9 @@ Not ready to open a PR? Start a [discussion](https://github.com/VietHann/agent-w
 ## Roadmap
 
 - **0.1:** analyzer, canonical workspace, six roles, ten skills, six tool targets, safe CLI, validation.
-- **0.2:** framework packs, Git-based extension sources, monorepo analysis, managed-file update previews.
-- **0.3:** a searchable static extension catalog with maintenance and validation signals.
+- **0.2:** bounded monorepo analysis, automatic tool detection, tailored adapter output, and adapter integrity checks.
+- **0.3:** framework packs, Git-based extension sources, and managed-file update previews.
+- **0.4:** a searchable static extension catalog with maintenance and validation signals.
 
 We will not build an IDE, chat app, proprietary cloud, autonomous coding agent, or LLM wrapper. `agent-workspace` organizes and upgrades the tools developers already chose.
 

@@ -7,8 +7,23 @@ All notable changes to `agent-workspace` are documented here. The project follow
 ### Planned
 
 - Framework packs and Git-based extension sources.
-- Improved monorepo and package-boundary analysis.
 - Managed-file update previews and compatibility fixtures.
+- Deeper language-specific analysis where evidence justifies the added complexity.
+
+## [0.2.0] - 2026-08-13
+
+### Added
+
+- Bounded monorepo discovery for npm/pnpm workspace containers and nested package manifests.
+- Package-level framework, database, test, source-directory, test-directory, command, and strict-TypeScript evidence.
+- Real adapter detection for Codex, Claude Code, Cursor, GitHub Copilot, Gemini CLI, and OpenCode repository markers.
+- Adapter entry-point integrity checks in `doctor`.
+
+### Changed
+
+- `init` now auto-detects existing coding tools and falls back to all adapters when no marker is present.
+- Each adapter now emits guidance shaped for its target tool instead of sharing one renamed document.
+- Product language now explicitly describes the project as context and workflow scaffolding, not a multi-agent runtime.
 
 ## [0.1.1] - 2026-08-12
 
@@ -31,6 +46,7 @@ All notable changes to `agent-workspace` are documented here. The project follow
 - `init`, `analyze`, `add`, `list`, `doctor`, and `validate` commands.
 - Cross-platform tests, a generated example workspace, contribution templates, and community health documentation.
 
-[Unreleased]: https://github.com/VietHann/agent-workspace/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/VietHann/agent-workspace/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/VietHann/agent-workspace/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/VietHann/agent-workspace/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/VietHann/agent-workspace/releases/tag/v0.1.0

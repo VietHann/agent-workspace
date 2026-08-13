@@ -11,17 +11,18 @@ The original concept has four important risks:
 3. **Configuration sprawl.** Writing six vendor formats can clutter or damage a repository. Adapters are thin projections of one canonical workspace, generated files are deterministic, and existing files are never overwritten unless explicitly requested.
 4. **The “team” metaphor can overpromise orchestration.** The MVP supplies differentiated roles and repeatable workflows; it does not pretend to schedule autonomous agents. Tools that support delegation may use the roles that way, while simpler tools consume them as focused operating modes.
 
-The durable growth loop is: instant repository-specific value, visible and editable artifacts, easy team customization, and low-boilerplate contributions. GitHub acts as the first registry. A hosted marketplace, model routing, autonomous execution, telemetry, and remote services are non-goals for 0.1.
+The durable growth loop is: instant repository-specific value, visible and editable artifacts, easy team customization, and low-boilerplate contributions. GitHub acts as the first registry. A hosted marketplace, model routing, autonomous execution, telemetry, and remote services remain non-goals.
 
 ## Final MVP specification
 
-Version 0.1 delivers:
+The 0.2 MVP delivers:
 
 - repository analysis for major JavaScript/TypeScript, Python, Go, Rust, and Java signals;
 - a versioned canonical workspace in `.agent-workspace/`;
 - six useful roles: architect, implementation engineer, reviewer, test engineer, debugger, and security reviewer;
 - ten validated skills;
-- adapters for Codex/OpenCode, Claude Code, Cursor, GitHub Copilot, and Gemini CLI;
+- automatic tool-marker detection and tailored adapters for Codex/OpenCode, Claude Code, Cursor, GitHub Copilot, and Gemini CLI;
+- bounded monorepo discovery across common workspace containers and nested package manifests;
 - `init`, `analyze`, `add`, `list`, `doctor`, and `validate` commands;
 - deterministic output and non-destructive conflict handling;
 - contribution validation, tests, templates, and an example fixture.
@@ -134,7 +135,7 @@ interface AgentAdapter {
 }
 ```
 
-Adapters return files; they never write them. The generator owns path safety, deterministic ordering, managed headers, conflict policy, and writes. Shared formats are reused: Codex and OpenCode both consume `AGENTS.md`, while each remains a separate adapter identity for future divergence.
+Adapters return files; they never write them. The generator owns path safety, deterministic ordering, managed headers, conflict policy, and writes. Detection is based on repository markers and is combined with adapters already pinned in an existing manifest so repeated initialization stays stable. Codex and OpenCode both consume `AGENTS.md`; Claude, Cursor, Copilot, and Gemini receive guidance structured for their native repository entry points.
 
 ## README narrative
 
@@ -146,11 +147,15 @@ The first viewport contains the name, tagline, one-sentence explanation, install
 
 Schemas, analyzer, deterministic generation, six roles, ten skills, five adapter formats, core commands, validation, tests, example, documentation, and community health files.
 
-### 0.2 — richer detection and composability
+### 0.2 — richer detection and honest positioning
 
-Framework packs, extension sources from Git repositories, better monorepo/package-boundary analysis, managed-file three-way updates, and compatibility fixtures for supported tools.
+Bounded monorepo/package-boundary analysis, automatic tool detection, tailored adapter documents, adapter health checks, and explicit product language that distinguishes workflow scaffolding from a multi-agent runtime.
 
-### 0.3 — ecosystem discovery
+### 0.3 — extension composability
+
+Framework packs, extension sources from Git repositories, managed-file update previews, and compatibility fixtures for supported tools.
+
+### 0.4 — ecosystem discovery
 
 Signed catalog metadata, searchable static registry, extension scoring based on validation and maintenance signals, and upgrade previews. No hosted account is required.
 
