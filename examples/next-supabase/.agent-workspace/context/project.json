@@ -2,7 +2,7 @@
   "schemaVersion": "1",
   "root": ".",
   "name": "example-next-supabase",
-  "analyzedAt": "2026-08-12T02:07:53.831Z",
+  "analyzedAt": "2026-08-13T02:01:02.821Z",
   "facts": [
     {
       "category": "database",
@@ -25,7 +25,7 @@
     {
       "category": "language",
       "value": "TypeScript",
-      "source": "tsconfig.json or package.json",
+      "source": "package.json or tsconfig.json",
       "confidence": "detected"
     },
     {
@@ -73,6 +73,6 @@
     }
   ],
   "recommendations": [
-    "Review inferred context before relying on it for architecture decisions."
+    "Treat dependency and file signals as repository evidence, not proof of runtime architecture."
   ]
 }
